@@ -1,0 +1,20 @@
+name: SyndicateGames
+version: 1.0.0
+main: me.thefischizockt.syndicategames.SyndicateGames
+author: TheFischIZockt
+description: SyndicateGames Plugin - Network Version
+
+commands:
+     syndicategames:
+          usage: /<command> [args] [opt args]
+          description: SyndicateGames command
+          aliases: [sg]
+     leave:
+          usage: /<command>
+          description: Verlasse das Spiel
+     lobby:
+          usage: /<command>
+          description: Verlasse das Spiel
+     hub:
+          usage: /<command>
+          description: Verlasse das Spiel
