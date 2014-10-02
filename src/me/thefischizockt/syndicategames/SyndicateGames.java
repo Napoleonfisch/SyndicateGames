@@ -15,6 +15,7 @@ import me.thefischizockt.syndicategames.listener.ChestListener;
 import me.thefischizockt.syndicategames.listener.EnderFlashListener;
 import me.thefischizockt.syndicategames.listener.EnderchestListener;
 import me.thefischizockt.syndicategames.listener.EntityDamageByEntityListener;
+import me.thefischizockt.syndicategames.listener.EntityDamageListener;
 import me.thefischizockt.syndicategames.listener.EntitySpawnListener;
 import me.thefischizockt.syndicategames.listener.ExpBottleListener;
 import me.thefischizockt.syndicategames.listener.FoodLevelChangeListener;
@@ -42,10 +43,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.ScoreboardManager;
 
 public class SyndicateGames extends JavaPlugin{
 	
@@ -62,6 +59,8 @@ public class SyndicateGames extends JavaPlugin{
 	private boolean freeze = false;
 	
 	private int onlinePlayers = 0;
+	
+	public boolean startedLobby = false;
 	
 	private static MySQL sql;
 	
@@ -80,14 +79,18 @@ public class SyndicateGames extends JavaPlugin{
 		saveConfig();
 		registerCommand();
 		registerEvents();
-		sql = new MySQL(getConfig().getString("MySQL.Hostname"), getConfig().getInt("MySQL.Port"), getConfig().getString("MySQL.Database"), getConfig().getString("MySQL.Username"), getConfig().getString("MySQL.Password"));
+		sql = new MySQL(getConfig().getString("MySQL.Hostname"),
+		getConfig().getInt("MySQL.Port"),
+	    getConfig().getString("MySQL.Database"),
+		getConfig().getString("MySQL.Username"),
+		getConfig().getString("MySQL.Password"));
 		sql.connect();
-		try{
+		try {
 			Statement st = sql.getConnection().createStatement();
 			st.executeUpdate("CREATE TABLE IF NOT EXISTS SGPoints(UUID varchar(100), Points int(100))");
 			st.executeUpdate("CREATE TABLE IF NOT EXISTS SGKills(UUID varchar(100), Kills int(100))");
 			st.executeUpdate("CREATE TABLE IF NOT EXISTS SGDeaths(UUID varchar(100), Deaths int(100))");
-		}catch(SQLException e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
@@ -129,6 +132,7 @@ public class SyndicateGames extends JavaPlugin{
 		pm.registerEvents(new EntitySpawnListener(), this);
 		pm.registerEvents(new ServerListPingListener(), this);
 		pm.registerEvents(new AsyncPlayerChatListener(), this);
+		pm.registerEvents(new EntityDamageListener(), this);
 	}
 	
 	public boolean isFreezed() {
@@ -171,24 +175,12 @@ public class SyndicateGames extends JavaPlugin{
 				1).runTaskTimer(this, 0, 20);
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void start() {
-		ScoreboardManager m = Bukkit.getScoreboardManager();
-		Scoreboard board1 = m.getNewScoreboard();
-		Objective o1 = board1.registerNewObjective("Opponent1", "dummy");
-		o1.setDisplayName(ChatColor.GRAY + "Opponent");
-		o1.setDisplaySlot(DisplaySlot.SIDEBAR);
-		o1.getScore("Kills").setScore(Kills.getKills(Bukkit.getOnlinePlayers()[1].getUniqueId().toString()));
-		o1.getScore("Deaths").setScore(Deaths.getDeaths(Bukkit.getOnlinePlayers()[1].getUniqueId().toString()));
-		o1.getScore("Points").setScore(Points.getPoints(Bukkit.getOnlinePlayers()[1].getUniqueId().toString()));
-		Bukkit.getOnlinePlayers()[0].setScoreboard(board1);
-		Scoreboard board2 = m.getNewScoreboard();
-		Objective o2 = board1.registerNewObjective("Opponent2", "dummy");
-		o2.setDisplayName(ChatColor.GRAY + "Opponent");
-		o2.setDisplaySlot(DisplaySlot.SIDEBAR);
-		o2.getScore("Kills").setScore(Kills.getKills(Bukkit.getOnlinePlayers()[0].getUniqueId().toString()));
-		o2.getScore("Deaths").setScore(Deaths.getDeaths(Bukkit.getOnlinePlayers()[0].getUniqueId().toString()));
-		o2.getScore("Points").setScore(Points.getPoints(Bukkit.getOnlinePlayers()[0].getUniqueId().toString()));
-		Bukkit.getOnlinePlayers()[1].setScoreboard(board2);
+		Location spawn1 = LocationUtil.getLocation(getConfig().getConfigurationSection("Spawn.First"), true);
+		Location spawn2 = LocationUtil.getLocation(getConfig().getConfigurationSection("Spawn.Second"), true);
+		Bukkit.getOnlinePlayers()[0].teleport(spawn1);
+		Bukkit.getOnlinePlayers()[1].teleport(spawn2);
 		state = GameState.INGAME;
 		freeze = true;
 		new Countdown(10, "Die SyndicateGames starten in %t Sekunden", "Die SyndicateGames haben gestartet", "start",
@@ -215,15 +207,9 @@ public class SyndicateGames extends JavaPlugin{
 	public void setOnlinePlayers(int op) {
 		onlinePlayers = op;
 		if(onlinePlayers == 2) {
-			Bukkit.getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-				public void run() {
-					Location spawn1 = LocationUtil.getLocation(getConfig().getConfigurationSection("Spawn.First"), true);
-					Location spawn2 = LocationUtil.getLocation(getConfig().getConfigurationSection("Spawn.Second"), true);
-					Bukkit.getOnlinePlayers()[0].teleport(spawn1);
-					Bukkit.getOnlinePlayers()[1].teleport(spawn2);
-					start();
-				}
-			}, 10L);
+			if(!startedLobby) {
+				new Countdown(30, "Die Lobby endet in %t Sekunden", "Die Lobby wurde beendet", "lobby", 30, 20, 10, 5, 4, 3, 2, 1).runTaskTimer(this, 0, 20);
+			}
 		}
 	}
 	

@@ -12,7 +12,7 @@ public class MessageManager {
 		return instance;
 	}
 	
-	private String prefix = ChatColor.YELLOW + "[" + ChatColor.AQUA + "SyndicateGames" + ChatColor.YELLOW + "]: " + ChatColor.RESET;
+	public String prefix = ChatColor.YELLOW + "[" + ChatColor.AQUA + "SyndicateGames" + ChatColor.YELLOW + "]: " + ChatColor.RESET;
 	
 	public void sendMessageToPlayer(Player p, MessageType type, String... messages) {
 		for(String msg : messages) {
@@ -26,6 +26,7 @@ public class MessageManager {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void broadcast(MessageType type, String... messages) {
 		for(String msg : messages) {
 			for(Player p : Bukkit.getOnlinePlayers()) {

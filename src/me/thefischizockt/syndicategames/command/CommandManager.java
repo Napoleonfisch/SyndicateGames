@@ -24,6 +24,7 @@ public class CommandManager implements CommandExecutor{
 		cmds.add(new Build());
 		cmds.add(new SetLobby());
 		cmds.add(new Records());
+		cmds.add(new SetStats());
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {

@@ -30,6 +30,7 @@ public class Countdown extends BukkitRunnable{
 		for(int i : countingNums) this.countingNums.add(i);
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void run() {
 		if(timer == 0) {
 			MessageManager.getInstance().broadcast(MessageType.INFO, finMsg);
@@ -63,6 +64,13 @@ public class Countdown extends BukkitRunnable{
 					p.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
 				}
 				SyndicateGames.getInstance().getChests().clear();
+			}else if(mode == "lobby") {
+				if(Bukkit.getOnlinePlayers().length == 1) {
+					SyndicateGames.getInstance().start();
+				}else {
+					SyndicateGames.getInstance().startedLobby = true;
+					new Countdown(30, "Die Lobby endet in %t Sekunden", "Die Lobby wurde beendet", "lobby", 30, 20, 10, 5, 4, 3, 2, 1).runTaskTimer(SyndicateGames.getInstance(), 0, 20);
+				}
 			}
 			cancel();
 		}

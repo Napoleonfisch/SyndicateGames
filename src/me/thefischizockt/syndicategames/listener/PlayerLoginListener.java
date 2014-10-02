@@ -10,6 +10,7 @@ import org.bukkit.event.player.PlayerLoginEvent;
 
 public class PlayerLoginListener implements Listener{
 	
+	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onPlayerLogin(PlayerLoginEvent e) {
 		if(SyndicateGames.getInstance().finishedSetup()) {

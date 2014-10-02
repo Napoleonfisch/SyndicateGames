@@ -3,12 +3,12 @@ package me.thefischizockt.syndicategames.listener;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 
 public class EntitySpawnListener implements Listener{
 	
 	@EventHandler
-	public void onEntitySpawn(EntitySpawnEvent e) {
+	public void onEntitySpawn(CreatureSpawnEvent e) {
 		if(e.getEntityType() == EntityType.ZOMBIE) e.setCancelled(true);
 		if(e.getEntityType() == EntityType.BLAZE) e.setCancelled(true);
 		if(e.getEntityType() == EntityType.CAVE_SPIDER) e.setCancelled(true);
